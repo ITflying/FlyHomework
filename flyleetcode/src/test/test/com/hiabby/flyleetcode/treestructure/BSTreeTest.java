@@ -34,6 +34,78 @@ public class BSTreeTest {
     }
 
     /**
+     * 查找指定值的节点
+     */
+    @Test
+    public void test_find() {
+        Integer key = 13;
+        BSTree<Integer> tree = initTree();
+        BSTree.BSTNode findNode = tree.recursiveSearch(key);
+        System.out.println("通过递归查询到的节点：" + findNode + " | " + findNode.getKey());
+
+        BSTree.BSTNode findNode2 = tree.commonSearch(key);
+        System.out.println("通过非递归查询到的节点：" + findNode2 + " | " + findNode2.getKey());
+
+        Assert.assertEquals(findNode, findNode2);
+    }
+
+    /**
+     * 查找最大值和最小值
+     */
+    @Test
+    public void test_find_max_min() {
+        BSTree<Integer> tree = initTree();
+        BSTree.BSTNode findMaxNode = tree.findMax();
+        System.out.println("最大值：" + findMaxNode + " | " + findMaxNode.getKey());
+
+        BSTree.BSTNode findMinNode = tree.findMin();
+        System.out.println("最小值：" + findMinNode + " | " + findMinNode.getKey());
+    }
+
+    /**
+     * 查找前驱节点和后继节点
+     */
+    @Test
+    public void test_find_front_back() {
+        Integer key = 13;
+        BSTree<Integer> tree = initTree();
+        BSTree.BSTNode findFrontNode = tree.findMiddleFrontNode(key);
+        System.out.println("前驱节点：" + findFrontNode + " | " + findFrontNode.getKey());
+
+        BSTree.BSTNode findBackNode = tree.findMiddleBackNode(key);
+        System.out.println("后继节点：" + findBackNode + " | " + findBackNode.getKey());
+    }
+
+    /**
+     * 删除和插入
+     */
+    @Test
+    public void test_delete_insert() {
+        Integer key = 6;
+        BSTree<Integer> tree = initTree();
+
+        System.out.println("\n 最开始的结果");
+        tree.display();
+
+        tree.remove(key);
+        System.out.println("\n 删除后的结果");
+        tree.display();
+
+        tree.insert(key);
+        System.out.println("\n 再插入后的结果");
+        tree.display();
+    }
+
+    /**
+     * 遍历输出节点
+     */
+    @Test
+    public void test_print() {
+        BSTree<Integer> tree = initTree();
+        tree.print();
+    }
+
+    /**
      * 获取树的节点数量高度
      */
     @Test
@@ -54,9 +126,9 @@ public class BSTreeTest {
      * 以树的形式展示数据
      */
     @Test
-    public void show(){
+    public void display() {
         BSTree<Integer> tree = initTree();
-        tree.print();
+        tree.display();
     }
 
     // endregion
@@ -64,14 +136,14 @@ public class BSTreeTest {
     // region 私有方法
 
     /**
-     * 初始化树结构
+     * 初始化树结构，以前序遍历的顺序插入
      */
     private BSTree<Integer> initTree() {
         // 前序遍历的顺序插入
-        List<Integer> keys = Lists.newArrayList(8, 3, 1, 6, 4 , 7 , 10, 14, 13);
+        List<Integer> keys = Lists.newArrayList(8, 3, 1, 6, 4, 7, 10, 14, 13);
 
         BSTree<Integer> bsTree = new BSTree<>();
-        for (Integer key:keys){
+        for (Integer key : keys) {
             bsTree.insert(key);
         }
         return bsTree;

@@ -1,9 +1,14 @@
 package com.hiabby.flyleetcode.treestructure.bstree;
 
+import com.google.common.collect.Lists;
+
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
+import java.util.Queue;
 
 /**
- * @desc 二叉搜索树，根节点左边比根节点小，右边比根节点大
+ * @desc 二叉搜索树（Binary Search Tree），根节点左边比根节点小，右边比根节点大
  * @date 2018/11/15
  **/
 public class BSTree<T extends Comparable<T>> {
@@ -28,6 +33,17 @@ public class BSTree<T extends Comparable<T>> {
             this.leftChildren = leftChildren;
             this.rightChildren = rightChildren;
             this.parent = parent;
+        }
+
+        public BSTNode(T key, BSTNode<T> parent) {
+            this.key = key;
+            this.leftChildren = null;
+            this.rightChildren = null;
+            this.parent = parent;
+        }
+
+        public T getKey() {
+            return key;
         }
     }
 
@@ -88,11 +104,12 @@ public class BSTree<T extends Comparable<T>> {
         }
         int compare = key.compareTo(node.key);
         if (compare < 0) {
-            recursiveSearch(node.leftChildren, key);
+            return recursiveSearch(node.leftChildren, key);
         } else if (compare > 0) {
-            recursiveSearch(node.rightChildren, key);
+            return recursiveSearch(node.rightChildren, key);
+        } else {
+            return node;
         }
-        return node;
     }
 
     public BSTNode<T> recursiveSearch(T key) {
@@ -156,7 +173,7 @@ public class BSTree<T extends Comparable<T>> {
     private BSTNode<T> findMiddleFrontNode(BSTNode<T> node) {
         // 如果左子树不为空，那么就是搜索左子树中最大的值
         // 因为中序遍历是先左后右，所以最后找到的肯定是右节点，也就是最大的那个
-        if (Objects.nonNull(node)) {
+        if (Objects.nonNull(node.leftChildren)) {
             return findMax(node.leftChildren);
         }
 
@@ -175,8 +192,12 @@ public class BSTree<T extends Comparable<T>> {
         return parent;
     }
 
-    public BSTNode<T> findMiddleFrontNode() {
-        return findMiddleFrontNode(mRoot);
+    public BSTNode<T> findMiddleFrontNode(T key) {
+        BSTNode<T> node = recursiveSearch(key);
+        if (Objects.isNull(node)) {
+            return null;
+        }
+        return findMiddleFrontNode(node);
     }
 
     /**
@@ -188,7 +209,7 @@ public class BSTree<T extends Comparable<T>> {
      * 右节点的下一个就是上一层的中节点，之所以是要有左节点，则是因为要找到真正的上一层
      */
     private BSTNode<T> findMiddleBackNode(BSTNode<T> node) {
-        if (Objects.nonNull(node)) {
+        if (Objects.nonNull(node.rightChildren)) {
             return findMin(node.rightChildren);
         }
 
@@ -200,8 +221,12 @@ public class BSTree<T extends Comparable<T>> {
         return parent;
     }
 
-    public BSTNode<T> findMiddleBackNode() {
-        return findMiddleBackNode(mRoot);
+    public BSTNode<T> findMiddleBackNode(T key) {
+        BSTNode<T> node = recursiveSearch(key);
+        if (Objects.isNull(node)) {
+            return null;
+        }
+        return findMiddleBackNode(node);
     }
 
 
@@ -395,6 +420,7 @@ public class BSTree<T extends Comparable<T>> {
     /**
      * 获取满二叉树指定层数的节点数量
      *
+     * @param level 层数，从1开始
      * @return
      */
     public int getFullTreeTargetLevelNodeNum(int level) {
@@ -402,6 +428,18 @@ public class BSTree<T extends Comparable<T>> {
             return 0;
         }
         return (int) Math.pow(2, (level - 1));
+    }
+
+    /**
+     * 获取满二叉树到指定层数所有节点数量
+     *
+     * @return
+     */
+    public int getFullTreeTargetLevelAllNodeNum(int level) {
+        if (level <= 0) {
+            return 0;
+        }
+        return (int) Math.pow(2, level) - 1;
     }
 
     /**
@@ -431,29 +469,108 @@ public class BSTree<T extends Comparable<T>> {
     /**
      * 打印树形结构
      *
-     * @param node
-     * @param height
-     * @param maxLevelNum
+     * @param mRoot 树的跟节点
      */
-    public void display(BSTNode<T> node, int height, int maxLevelNum) {
-        for (int level = 0; level < height; level++) {
-            StringBuilder stringBuilder = new StringBuilder();
-            int nodeNum = getFullTreeTargetLevelNodeNum(level);
-            Integer[] levelNode = new Integer[nodeNum];
+    public void display(BSTNode<T> mRoot) {
+        // 1. 获取树高
+        int height = getTreeHeight();
 
-            int middle = maxLevelNum / nodeNum;
-            for (int i = 0; i < middle; i++) {
-                stringBuilder.append("\t");
+        // 2. 获取满二叉树所有节点数量
+        int allLevelNum = getFullTreeTargetLevelAllNodeNum(height);
+
+        // 3. 遍历展示每一层的节点
+        for (int level = 1; level <= height; level++) {
+            displayLevel(mRoot, level, height, allLevelNum);
+        }
+    }
+
+    public void displayLevel(BSTNode<T> mRoot, int level, int height, int allLevelNum) {
+        StringBuilder levelShow = new StringBuilder();
+
+        // 1. 获取指定层数的节点数量
+        int nodeNum = getFullTreeTargetLevelNodeNum(level);
+
+        // 2. 确定间隔空格
+        int intervalPos = allLevelNum / (nodeNum + 1);
+        StringBuilder intervalStr = new StringBuilder();
+        StringBuilder intervalStrLine = new StringBuilder();
+        for (int i = 0; i < intervalPos; i++) {
+            intervalStr.append(" ");
+            intervalStrLine.append("ˉ");
+        }
+
+        // 3. 获取指定层数的数据
+        List<String> levelData = getTargetLevelData(mRoot, level);
+
+        int realPos = 0;
+        while (levelData.size() > 0 && realPos < levelData.size()) {
+            if (realPos > 0 && realPos < levelData.size()) {
+                levelShow.append(intervalStrLine);
+            } else {
+                levelShow.append(intervalStr);
+            }
+            levelShow.append(levelData.get(realPos));
+            realPos++;
+        }
+
+        // 4. 打印树形结构
+        System.out.println(levelShow.toString());
+    }
+
+    public List<String> getTargetLevelData(BSTNode<T> mRoot, int level) {
+        // 1. 初始化数据
+        List<String> levelData = Lists.newArrayList();
+        BSTNode<T> temp;
+        BSTNode<T> last = mRoot;
+        BSTNode<T> nextLast = mRoot;
+        int nowLevel = 1;
+
+        // 2. 使用队列来完成
+        Queue<BSTNode<T>> queue = new LinkedList<>();
+        queue.offer(mRoot);
+        while (!queue.isEmpty() && nowLevel <= level) {
+            temp = queue.poll();
+            if (nowLevel == level) {
+                levelData.add(String.valueOf(temp.key));
+            }
+
+            if (Objects.nonNull(temp.leftChildren)) {
+                queue.offer(temp.leftChildren);
+            } else {
+                BSTNode defaultNode = getDefaultNode(temp);
+                queue.offer(defaultNode);
+            }
+
+            if (Objects.nonNull(temp.rightChildren)) {
+                queue.offer(temp.rightChildren);
+                nextLast = temp.rightChildren;
+            } else {
+                BSTNode defaultNode = getDefaultNode(temp);
+                queue.offer(defaultNode);
+                nextLast = defaultNode;
+            }
+
+            if (temp.equals(last)) {
+                nowLevel++;
+                last = nextLast;
             }
         }
+
+        return levelData;
+    }
+
+    private BSTNode getDefaultNode(BSTNode parent) {
+        BSTNode defaultNode = new BSTNode("口", parent);
+        BSTNode leftDefaultNode = new BSTNode("口", parent);
+        BSTNode rightDefaultNode = new BSTNode("口", parent);
+        defaultNode.leftChildren = leftDefaultNode;
+        defaultNode.rightChildren = rightDefaultNode;
+        return defaultNode;
     }
 
     public void display() {
         if (Objects.nonNull(mRoot)) {
-            int height = getTreeHeight();
-            int maxLevelNum = getFullTreeTargetLevelNodeNum(height);
-            display(mRoot, height, maxLevelNum + 1);
+            display(mRoot);
         }
     }
-
 }
