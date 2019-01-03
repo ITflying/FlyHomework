@@ -34,17 +34,17 @@ public class BSTreeTest {
     }
 
     /**
-     * 查找指定值的节点
+     * 查找指定值的结点
      */
     @Test
     public void test_find() {
         Integer key = 13;
         BSTree<Integer> tree = initTree();
         BSTree.BSTNode findNode = tree.recursiveSearch(key);
-        System.out.println("通过递归查询到的节点：" + findNode + " | " + findNode.getKey());
+        System.out.println("通过递归查询到的结点：" + findNode + " | " + findNode.getKey());
 
         BSTree.BSTNode findNode2 = tree.commonSearch(key);
-        System.out.println("通过非递归查询到的节点：" + findNode2 + " | " + findNode2.getKey());
+        System.out.println("通过非递归查询到的结点：" + findNode2 + " | " + findNode2.getKey());
 
         Assert.assertEquals(findNode, findNode2);
     }
@@ -63,17 +63,17 @@ public class BSTreeTest {
     }
 
     /**
-     * 查找前驱节点和后继节点
+     * 查找前驱结点和后继结点
      */
     @Test
     public void test_find_front_back() {
         Integer key = 13;
         BSTree<Integer> tree = initTree();
         BSTree.BSTNode findFrontNode = tree.findMiddleFrontNode(key);
-        System.out.println("前驱节点：" + findFrontNode + " | " + findFrontNode.getKey());
+        System.out.println("前驱结点：" + findFrontNode + " | " + findFrontNode.getKey());
 
         BSTree.BSTNode findBackNode = tree.findMiddleBackNode(key);
-        System.out.println("后继节点：" + findBackNode + " | " + findBackNode.getKey());
+        System.out.println("后继结点：" + findBackNode + " | " + findBackNode.getKey());
     }
 
     /**
@@ -97,7 +97,7 @@ public class BSTreeTest {
     }
 
     /**
-     * 遍历输出节点
+     * 遍历输出结点
      */
     @Test
     public void test_print() {
@@ -106,15 +106,15 @@ public class BSTreeTest {
     }
 
     /**
-     * 获取树的节点数量高度
+     * 获取树的结点数量高度
      */
     @Test
     public void test_getTreeHeight() {
         BSTree<Integer> tree = initTree();
 
-        // 树的节点数量
+        // 树的结点数量
         int nodeNum = tree.getNodeNum();
-        System.out.println("树的节点数量：" + nodeNum);
+        System.out.println("树的结点数量：" + nodeNum);
         Assert.assertEquals(nodeNum, 9);
 
         int height = tree.getTreeHeight();
