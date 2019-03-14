@@ -9,6 +9,7 @@
     <modules>
         <module>flyinsky</module>
         <module>flyleetcode</module>
+        <module>flyinterview</module>
     </modules>
 
     <description>FlyHomework</description>
@@ -28,6 +29,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
+                <version>3.0.1</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -63,6 +65,7 @@
             <modules>
                 <module>flyinsky</module>
                 <module>flyleetcode</module>
+                <module>flyinterview</module>
             </modules>
         </profile>
 
@@ -74,6 +77,7 @@
             <modules>
                 <module>flyinsky</module>
                 <module>flyleetcode</module>
+                <module>flyinterview</module>
             </modules>
         </profile>
 
@@ -85,6 +89,7 @@
             <modules>
                 <module>flyinsky</module>
                 <module>flyleetcode</module>
+                <module>flyinterview</module>
             </modules>
         </profile>
     </profiles>
