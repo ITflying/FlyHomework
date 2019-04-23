@@ -86,14 +86,18 @@ public class BSTreeTest {
 
         System.out.println("\n 最开始的结果");
         tree.display();
+//
+//        tree.remove(key);
+//        System.out.println("\n 删除后的结果");
+//        tree.display();
+//
+//        tree.insert(key);
+//        System.out.println("\n 再插入后的结果");
+//        tree.display();
 
-        tree.remove(key);
-        System.out.println("\n 删除后的结果");
-        tree.display();
-
-        tree.insert(key);
-        System.out.println("\n 再插入后的结果");
-        tree.display();
+        // 指定层数
+        System.out.println("\n 指定层数的结果");
+        System.out.println(tree.getTargetLevelData(tree.getmRoot(), 2));
     }
 
     /**
