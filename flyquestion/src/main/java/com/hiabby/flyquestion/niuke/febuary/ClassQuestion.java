@@ -1,4 +1,4 @@
-package com.hiabby.flyleetcode.niuke.febuary;
+package com.hiabby.flyquestion.niuke.febuary;
 
 
 import java.lang.reflect.Array;

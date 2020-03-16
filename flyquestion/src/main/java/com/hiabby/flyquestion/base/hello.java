@@ -1,4 +1,4 @@
-package com.hiabby.flyleetcode.base;
+package com.hiabby.flyquestion.base;
 
 import com.google.common.collect.Lists;
 

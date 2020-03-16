@@ -8,7 +8,7 @@
     <version>1.0.000-SNAPSHOT</version>
     <modules>
         <module>flyinsky</module>
-        <module>flyleetcode</module>
+        <module>flyquestion</module>
         <module>flyinterview</module>
     </modules>
 
@@ -51,7 +51,7 @@
             <dependency>
                 <groupId>com.alibaba</groupId>
                 <artifactId>fastjson</artifactId>
-                <version>1.2.51</version>
+                <version>1.2.66</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -64,7 +64,7 @@
             </activation>
             <modules>
                 <module>flyinsky</module>
-                <module>flyleetcode</module>
+                <module>flyquestion</module>
                 <module>flyinterview</module>
             </modules>
         </profile>
@@ -76,7 +76,7 @@
             </activation>
             <modules>
                 <module>flyinsky</module>
-                <module>flyleetcode</module>
+                <module>flyquestion</module>
                 <module>flyinterview</module>
             </modules>
         </profile>
@@ -88,7 +88,7 @@
             </activation>
             <modules>
                 <module>flyinsky</module>
-                <module>flyleetcode</module>
+                <module>flyquestion</module>
                 <module>flyinterview</module>
             </modules>
         </profile>

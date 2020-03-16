@@ -1,6 +1,6 @@
-package com.hiabby.flyleetcode.treestructure;
+package com.hiabby.flyquestion.treestructure;
 
-import com.hiabby.flyleetcode.treestructure.bstree.BSTree;
+import com.hiabby.flyquestion.treestructure.bstree.BSTree;
 import org.assertj.core.util.Lists;
 import org.junit.Assert;
 import org.junit.Test;

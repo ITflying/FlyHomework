@@ -1,4 +1,4 @@
-package com.hiabby.flyleetcode.niuke.febuary;
+package com.hiabby.flyquestion.niuke.febuary;
 
 /**
  * @description: 假设 a 是一个由线程 1 和线程 2 共享的初始值为 0 的全局变量，则线程 1 和线程 2 同时执行一段代码，结果不可能是1

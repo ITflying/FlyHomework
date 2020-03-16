@@ -1,4 +1,4 @@
-package com.hiabby.flyleetcode;
+package com.hiabby.flyquestion;
 
 import org.junit.Test;
 

@@ -1,4 +1,5 @@
-package com.hiabby.flyleetcode.treestructure.bstree;
+package com.hiabby.flyquestion.treestructure.bstree;
+
 
 import com.google.common.collect.Lists;
 
