@@ -1,0 +1,225 @@
+'''
+1-获取公交车停站信息
+
+因为每天早上都要等公交，然后一般用上海发布的公交车信息来计算第一班车到站信息，第二班到站信息，就希望有这样一个工具
+可以直接告诉我这个信息，不需要自己简单计算
+
+'''
+import json
+import math
+
+import pymysql
+from bs4 import BeautifulSoup
+import requests
+import re
+
+session = requests.session()
+
+
+class shang_hai_bus:
+    bus_url = 'https://shanghaicity.openservice.kankanews.com/public/bus'
+    get_url = bus_url + '/get'
+
+    headers = {
+        "HOST": "shanghaicity.openservice.kankanews.com",
+        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36 MicroMessenger/6.5.2.501 NetType/WIFI WindowsWechat QBCore/3.43.884.400 QQBrowser/9.0.2524.400',
+    }
+
+    # 获取公交站信息
+    def get_bus_page(self):
+        response = session.get(url=self.bus_url, headers=self.headers)
+        data = response.text
+
+        soup = BeautifulSoup(data, 'html5lib')
+        pattern = re.compile(r"var data = \[(.*?)\];$", re.MULTILINE | re.DOTALL)
+        bus_data = soup.find("script", text=pattern)
+        bus_data_info = pattern.search(bus_data.text).group(1)
+        bus_data_info = bus_data_info.replace("\"", "").replace("            ", "").replace("\n", "")
+        bus_data_info_list = bus_data_info.split(",")
+
+        self.save_bus_list(bus_data_info_list)
+
+    def save_bus_list(self, bus_data_info_list):
+        if not bus_data_info_list is None and len(bus_data_info_list) > 0:
+            update_not_use_bus_list = []
+            update_use_bus_list = []
+
+            self.createDbConnection()
+            with self.connection.cursor() as cursor:
+                # 1. 获取原有公交信息
+                sql = "select name,status from bus_list"
+                cursor.execute(sql)
+                results = cursor.fetchall()
+
+                # 2. 循环判断
+                for row in results:
+                    bus_name = row[0]
+                    bus_status = row[1]
+                    if bus_name not in bus_data_info_list:
+                        update_not_use_bus_list.append(bus_name)
+                    if bus_name in bus_data_info_list:
+                        if bus_status == 0:
+                            update_use_bus_list.append(bus_name)
+                        bus_data_info_list.remove(bus_name)
+
+                # 3. 根据状态执行结果
+                try:
+                    insert_sql = "INSERT INTO bus_list(name) VALUES(%s)"
+                    cursor.executemany(insert_sql, bus_data_info_list)
+
+                    updaet_1_sql = "UPDATE bus_list set status = 1 where name in (%s)"
+                    cursor.executemany(updaet_1_sql, update_use_bus_list)
+
+                    updaet_0_sql = "UPDATE bus_list set status = 0 where name in (%s)"
+                    cursor.executemany(updaet_0_sql, update_not_use_bus_list)
+                    self.connection.commit()
+                except Exception as e:
+                    print(e)
+                    self.connection.rollback()
+
+            print("新增公交车：" + " ".join(bus_data_info_list))
+            print("原有公交车恢复：" + "".join(update_use_bus_list))
+            print("停止使用公交车：" + "".join(update_not_use_bus_list))
+            self.closeDbConnection()
+
+    # 获取公交到站信息 stoptype = 1 反向
+    def get_bus_station_info(self, bus_name, station_name, stoptype):
+        mes = ""
+        post_data = {
+            "idnum": bus_name
+        }
+        response = session.post(url=self.get_url, data=post_data, headers=self.headers)
+        data = response.text
+        res = json.loads(data)
+        detail_url = self.bus_url + "/mes/sid/" + res['sid']
+        if stoptype == 1:
+            detail_url = detail_url + "?stoptype=1"
+
+        bus_detail = session.get(url=detail_url, headers=self.headers)
+        detail_content = bus_detail.text
+
+        soup = BeautifulSoup(detail_content, 'html5lib')
+        station_span = soup.find("div", class_="stationBox").find(lambda e: e.name == 'span' and station_name in e.text)
+        if not station_span is None:
+            station_div = station_span.find_parent("div")
+            bus_num = station_div.find('span', class_="num").text
+
+            post_bus_data = {
+                "stoptype": stoptype,
+                "stopid": bus_num,
+                "sid": res['sid']
+            }
+            bus_station_url = self.bus_url + "/Getstop"
+            bus_station_data = session.post(url=bus_station_url, data=post_bus_data, headers=self.headers)
+            bus_station_data = bus_station_data.text
+            bus_station_res = json.loads(bus_station_data)
+            if isinstance(bus_station_res, dict) and not bus_station_res['error'] is None:
+                return "等待发车或无数据"
+            bus_station_detail = bus_station_res[0]
+            if not bus_station_detail is None:
+                time = bus_station_detail["time"]
+                if "分钟" in time:
+                    mes = '第一班车：'+bus_station_detail['terminal'] + ' 还有' + bus_station_detail['stopdis'] + '站, 约 ' + time
+                else:
+                    mes = '第一班车：'+bus_station_detail['terminal'] + ' 还有' + bus_station_detail['stopdis'] + '站, 约 ' + self.changeTime(int(time))
+
+                bus_foreach_num = bus_num.replace('.', '')
+                alive_bus_name_list = [bus_station_detail['terminal']]
+                station_info_dict = {'station': int(bus_station_detail['stopdis']), 'time': time,'bus_pos':1}
+                for bus_foreach_num_tep in range(int(bus_foreach_num) - 1, 0, -1):
+                    each_mes = self.get_pre_bus_info(stoptype, bus_foreach_num_tep, res['sid'],
+                                                     bus_station_detail['terminal'], alive_bus_name_list,
+                                                     station_info_dict)
+                    if each_mes != '等待发车':
+                        mes = mes + "\n" + each_mes
+            else:
+                mes = "等待发车或无数据"
+        else:
+            mes = "不存在"
+        return mes
+
+    _MAPPING = (
+    u'零', u'一', u'二', u'三', u'四', u'五', u'六', u'七', u'八', u'九', u'十', u'十一', u'十二', u'十三', u'十四', u'十五', u'十六', u'十七',
+    u'十八', u'十九')
+    _P0 = (u'', u'十', u'百', u'千',)
+    _S4 = 10 ** 4
+
+    def _to_chinese4(self,num):
+        assert (0 <= num and num < self._S4)
+        if num < 20:
+            return self._MAPPING[num]
+        else:
+            lst = []
+            while num >= 10:
+                lst.append(num % 10)
+                num = num / 10
+            lst.append(num)
+            c = len(lst)  # 位数
+            result = u''
+
+            for idx, val in enumerate(lst):
+                val = int(val)
+                if val != 0:
+                    result += self._P0[idx] + self._MAPPING[val]
+                    if idx < c - 1 and lst[idx + 1] == 0:
+                        result += u'零'
+            return result[::-1]
+
+    def get_pre_bus_info(self, stoptype, bus_num, sid, terminal, alive_bus_name_list, station_info_dict):
+        post_bus_data = {
+            "stoptype": stoptype,
+            "stopid": str(bus_num) + ".",
+            "sid": sid
+        }
+        bus_station_url = self.bus_url + "/Getstop"
+        bus_station_data = session.post(url=bus_station_url, data=post_bus_data, headers=self.headers)
+        bus_station_data = bus_station_data.text
+        bus_station_res = json.loads(bus_station_data)
+        if isinstance(bus_station_res, dict) and not bus_station_res['error'] is None:
+            return "等待发车"
+        bus_station_detail = bus_station_res[0]
+        if not bus_station_detail is None and bus_station_detail['terminal'] not in alive_bus_name_list:
+            time = bus_station_detail["time"]
+            station_info_dict['station'] = station_info_dict['station'] + int(bus_station_detail['stopdis'])
+            station_info_dict['time'] = int(station_info_dict['time']) + int(time)
+            station_info_dict['bus_pos'] = int(station_info_dict['bus_pos']) + 1
+            station_info_dict_station = str(station_info_dict['station'])
+            mes = "第"+self._to_chinese4(station_info_dict['bus_pos'])+"班车："
+            if "分钟" in time:
+                mes += bus_station_detail['terminal'] + ' 还有' + station_info_dict_station + '站, 约 ' + station_info_dict['time']
+            else:
+                mes += bus_station_detail['terminal'] + ' 还有' + station_info_dict_station + '站, 约 ' + self.changeTime(int(station_info_dict['time']))
+            alive_bus_name_list.append(bus_station_detail['terminal'])
+            return mes
+        else:
+            return "等待发车"
+
+    def createDbConnection(self):
+        self.connection = pymysql.connect(host='localhost', user='test', password='test', db='test',
+                                          port=3306,
+                                          charset="utf8")
+
+    def closeDbConnection(self):
+        self.connection.close()
+
+    def changeTime(self, allTime):
+        day = 24 * 60 * 60
+        hour = 60 * 60
+        min = 60
+        if allTime < 60:
+            return "%d秒" % math.ceil(allTime)
+        elif allTime > day:
+            days = divmod(allTime, day)
+            return "%d天%s" % (int(days[0]), self.changeTime(days[1]))
+        elif allTime > hour:
+            hours = divmod(allTime, hour)
+            return '%d小时%s' % (int(hours[0]), self.changeTime(hours[1]))
+        else:
+            mins = divmod(allTime, min)
+            return "%d分钟%d秒" % (int(mins[0]), math.ceil(mins[1]))
+
+
+if __name__ == "__main__":
+    shb = shang_hai_bus()
+    mes = shb.get_bus_station_info('浦东28路', '张江路华益路', 1)
+    print(mes)

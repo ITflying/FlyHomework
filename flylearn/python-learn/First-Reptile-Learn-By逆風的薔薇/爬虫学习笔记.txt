@@ -1,0 +1,37 @@
+﻿> 在学习完廖雪峰的Python3教程之后，了解了Python的基本操作和相关知识之后就开始学习如何使用python爬虫了，先选择了csdn博主“逆風的薔薇”的教程，希望能跟着大致学习一下python爬虫（博客地址：http://blog.csdn.net/fly_yr?q=python）
+
+1、爬虫是用来爬取网页资源的，那么自然要了解有关于网络的知识，这是基础。如果要深入精通爬虫，那么需要涉猎的知识也十分广泛，比如网络请求、分布式、正则表达式、开发框架、数据库等等。
+
+2、urllib在python2中是urllib2，而在python3后全部整合为了urllib，一般使用urllib.request和urllib.response完成爬取网页。
+
+3、decode 字符串编码工具，转化后数据类型就不是str了
+
+4、在浏览器页面获取请求头就可以将headers设置为页面请求头，伪装浏览器
+
+5、rindex 返回子字符串 str 在字符串中最后出现的位置
+
+6、re.findall(r'(https:[^s]*?(jpg|png|gif))' 获取路径中包含jpg|png|gif的地址
+
+7、urlretrieve(url, filename=None, reporthook=None, data=None)
+urlopen() 可以轻松获取远端 html 页面信息，然后通过 python 正则对所需要的数据进行分析，匹配出想要用的数据，在利用urlretrieve() 将数据下载到本地。
+
+8、Fiddler：抓包工具，能够记录客户端和服务器之间的所有HTTP请求，所以可以用它来分析各种网页请求。
+
+8、我用到两种正则方式：（1）cer = re.compile('<input type=\"hidden\" value=\"(.*)\" name=\"next\" />', flags=0)
+                              strlist = cer.findall(data)
+                         （2）str = r'<div.*?article_item">.*?<span class="(.*?)"></span>.*?link_title"><a href="(.*?)">(.*?)</a>.*?'
+                              pattern = re.compile(str, re.DOTALL)
+                              items = re.findall(pattern, data)
+
+9、Scrapy是一个为了爬取网站数据，提取结构性数据而编写的应用框架。 可以应用在包括数据挖掘，信息处理或存储历史数据等一系列的程序中。
+其最初是为了 页面抓取 (更确切来说, 网络抓取 )所设计的， 也可以应用在获取API所返回的数据(例如 Amazon Associates Web Services ) 或者通用的网络爬虫。
+
+10、win7 python3.5 64位，首先直接安装pip install Scrapy失败，百度后发现需要安装三个文件，vcvarsall.bat、twisted、lxml，后两个在Python Extension Packages for Windows 可以下载后安装，vcvarsall.bat
+可以选择安装vs2015，也可以选择安装MinGW解决问题
+
+11、scrapy和request比较：scrapy 是框架（异步）， requests 是库；
+
+12、Beautiful Soup 是一个可以从HTML或XML文件中提取数据的Python库.它能够通过你喜欢的转换器实现惯用的文档导航,查找,修改文档的方式.Beautiful Soup会帮你节省数小时甚至数天的工作时间.
+（用我的话来说，是个格式化页面数据的库，更快的提取自己所需要的数据）
+
+13、scrapy步骤：（1）在item.py中定义要爬取的内容（2）在splider中创建爬虫文件并编写爬虫逻辑（3）在pipelines.py处理数据（4）最后修改setting.py配置（5）scrapy crawl csdnSpider运行

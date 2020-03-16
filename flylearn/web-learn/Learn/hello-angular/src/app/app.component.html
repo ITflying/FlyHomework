@@ -1,0 +1,39 @@
+<mdl-layout mdl-layout-fixed-header mdl-layout-header-seamed>
+    <mdl-layout-header>
+      <mdl-layout-header-row>
+        <mdl-layout-title>{{title}}</mdl-layout-title>
+        <mdl-layout-spacer></mdl-layout-spacer>
+        <!-- Navigation. We hide it in small screens. -->
+        <nav class="mdl-navigation" *ngIf="auth?.user?.username !== null">
+          <a class="mdl-navigation__link" routerLink="todo">Todos</a>
+        </nav>
+        <nav class="mdl-navigation" *ngIf="auth?.user?.username !== null">
+          <a class="mdl-navigation__link" routerLink="profile">{{auth.user.username}}</a>
+        </nav>
+        <nav class="mdl-navigation">
+          <a class="mdl-navigation__link" *ngIf="auth?.user?.username === null" (click)="login()">
+            Login
+          </a>
+          <a class="mdl-navigation__link" *ngIf="auth?.user?.username !== null" (click)="logout()">
+            Logout
+          </a>
+        </nav>
+      </mdl-layout-header-row>
+    </mdl-layout-header>
+    <mdl-layout-drawer>
+      <mdl-layout-title>{{title}}</mdl-layout-title>
+      <nav class="mdl-navigation">
+        <a class="mdl-navigation__link">Link</a>
+      </nav>
+    </mdl-layout-drawer>
+    <mdl-layout-content class="content">
+      <!--  以下为路由插座的形式来显示内容的，也就不能采用子控件的形式传递信息。
+            Rx是响应式编程的利器，它的学习门槛来自于思维方式的转变，
+            从传统的编程思维转成流式思维：
+            Rx总体来看是一个数据流或信号流，所有的操作符都是为了对这个流进行控制。
+            写Rx时要对系统数据或信号的完整逻辑流程先想清楚，然后就比较好写了。
+      -->
+      <router-outlet></router-outlet>
+    </mdl-layout-content>
+  </mdl-layout>
+  

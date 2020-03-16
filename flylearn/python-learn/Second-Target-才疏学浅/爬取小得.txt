@@ -1,0 +1,24 @@
+1、涉及到的模块有：
+请求 ：urllib.request、urllib.response、cookielib
+多线程：threading
+正则：re
+json解析：json
+html dom解析：pyquery、beautiful soup
+操作浏览器：selenium
+
+2、数据库操作：插入需要commit，查询获取返回结果需要excete再feachall获取所有数据
+
+3、对于Python来说，多线程并不能并行执行，而是通过快速的多线程切换，让使用者感觉是并行执行的。
+这是由于Python中使用了全局解释锁GIL的概念，导致Python中的多线程并不是并行执行，而是“交替执行”。
+所以Python中的多线程适合IO密集型任务（请求网页、磁盘IO、网络IO等），而不适合计算密集型任务（CPU密集，涉及计算）。
+
+4、with as 就是try ..finally 的进阶版
+file = open("/tmp/foo.txt")         | with open("/tmp/foo.txt") as file:
+try:                                |   data = file.read()
+    data = file.read()              |
+finally:                            |
+    file.close()                    |
+
+5、在做了几个页面的爬取之后，我感觉其步骤差不多就是先设置hearders，然后找到要爬取页面的地址规律，然后再获取单页的数据，
+然后通过requests获取页面返回结果，用BeatuifulSoap处理页面，或者使用re.find正则表达式提取需要的元素，封装数据放入文件或者
+数据库当中。当然这其中还有代理切换、多线程等技术的支持，加快爬取或者避免被封杀。
