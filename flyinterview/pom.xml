@@ -28,7 +28,7 @@
 
         <!-- object change libs -->
         <dozer.version>5.5.1</dozer.version>
-        <jackson.version>2.8.6</jackson.version>
+        <jackson.version>2.9.10.4</jackson.version>
 
         <!-- test libs -->
         <junit.version>4.12</junit.version>
