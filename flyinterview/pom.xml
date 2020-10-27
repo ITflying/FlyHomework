@@ -19,7 +19,7 @@
 
     <properties>
         <!-- common libs -->
-        <guava.version>20.0</guava.version>
+        <guava.version>30.0-jre</guava.version>
         <commons-lang3.version>3.7</commons-lang3.version>
 
         <!-- log libs -->
@@ -28,7 +28,7 @@
 
         <!-- object change libs -->
         <dozer.version>5.5.1</dozer.version>
-        <jackson.version>2.8.6</jackson.version>
+        <jackson.version>2.11.3</jackson.version>
 
         <!-- test libs -->
         <junit.version>4.12</junit.version>
@@ -108,13 +108,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- only for XMLMapper test -->
-        <dependency>
-            <groupId>dom4j</groupId>
-            <artifactId>dom4j</artifactId>
-            <version>1.6.1</version>
-            <scope>test</scope>
-        </dependency>
 
         <!-- only for XMLMapper test -->
         <dependency>
